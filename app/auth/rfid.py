@@ -18,8 +18,8 @@ def init(on_unlock=None, on_register=None):
     _on_register = on_register
 
     try:
-        from mfrc522 import SimpleMFRC522
-        _reader = SimpleMFRC522()
+        from mfrc522 import MFRC522
+        _reader = MFRC522()
         print("MFRC522 reader initialised.")
     except (ImportError, RuntimeError) as e:
         print(f"RFID reader not available ({e}). Running without RFID.")
@@ -38,7 +38,15 @@ def _scan_loop():
 
     while _running:
         try:
-            uid, _ = _reader.read()
+            (status, _) = _reader.MFRC522_Request(_reader.PICC_REQIDL)
+            if status != _reader.MI_OK:
+                time.sleep(0.1)
+                continue
+            (status, raw_uid) = _reader.MFRC522_Anticoll()
+            if status != _reader.MI_OK:
+                continue
+            # Match SimpleMFRC522 UID format (big-endian, first 4 bytes)
+            uid = (raw_uid[0] << 24) | (raw_uid[1] << 16) | (raw_uid[2] << 8) | raw_uid[3]
         except Exception as e:
             print(f"RFID read error: {e}")
             time.sleep(1)

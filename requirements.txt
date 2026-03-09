@@ -3,4 +3,4 @@ uvicorn[standard]
 streamdeck
 Pillow
 mfrc522
-RPi.GPIO
+rpi-lgpio
