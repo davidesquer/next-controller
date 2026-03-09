@@ -34,7 +34,7 @@ def init(on_unlock=None, on_register=None):
 
 def _scan_loop():
     """Continuously scan for RFID cards."""
-    global register_mode, _running
+    global register_mode, _running, _last_uid, _last_scan_time
     _running = True
     print("RFID scan loop started.")
 
