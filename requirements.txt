@@ -2,5 +2,5 @@ fastapi
 uvicorn[standard]
 streamdeck
 Pillow
-mfrc522
+spidev
 rpi-lgpio

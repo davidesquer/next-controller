@@ -9,6 +9,8 @@ _reader = None
 _running = False
 _on_unlock = None  # callback when a valid card is scanned
 _on_register = None  # callback when a new card is registered
+_last_uid = None
+_last_scan_time = 0.0
 
 
 def init(on_unlock=None, on_register=None):
@@ -45,12 +47,22 @@ def _scan_loop():
             (status, raw_uid) = _reader.MFRC522_Anticoll()
             if status != _reader.MI_OK:
                 continue
-            # Match SimpleMFRC522 UID format (big-endian, first 4 bytes)
-            uid = (raw_uid[0] << 24) | (raw_uid[1] << 16) | (raw_uid[2] << 8) | raw_uid[3]
+            # Match SimpleMFRC522 UID format (big-endian, all 5 bytes)
+            uid = 0
+            for byte in raw_uid:
+                uid = uid * 256 + byte
         except Exception as e:
             print(f"RFID read error: {e}")
             time.sleep(1)
             continue
+
+        # Debounce: ignore repeated reads of the same card within 2 seconds
+        now = time.monotonic()
+        if uid == _last_uid and (now - _last_scan_time) < 2.0:
+            time.sleep(0.1)
+            continue
+        _last_uid = uid
+        _last_scan_time = now
 
         if register_mode:
             if not cards.is_registered(uid):
