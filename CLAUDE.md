@@ -16,7 +16,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Run the server (port 8000)
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload
 ```
 
 The RFID reader requires running on a Raspberry Pi with SPI enabled. On non-Pi hardware, the app starts without RFID support (graceful fallback).

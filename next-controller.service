@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/mnt/nvme/next-controller
-ExecStart=/mnt/nvme/next-controller/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000
+ExecStart=/mnt/nvme/next-controller/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 3000
 Restart=on-failure
 RestartSec=5
 
