@@ -1,0 +1,46 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Sync code to deploy directory
+        run: |
+          rsync -a --delete \
+            --exclude '.git' \
+            --exclude '.venv' \
+            --exclude '__pycache__' \
+            --exclude 'cards.json' \
+            ./ /mnt/nvme/next-controller/
+
+      - name: Recreate venv if broken
+        working-directory: /mnt/nvme/next-controller
+        run: |
+          if [ -d .venv ] && ! [ -x .venv/bin/python ]; then
+            sudo rm -rf .venv
+          fi
+
+      - name: Install dependencies
+        working-directory: /mnt/nvme/next-controller
+        run: |
+          if [ ! -d .venv ]; then
+            python3 -m venv .venv
+          fi
+          .venv/bin/pip install -r requirements.txt
+
+      - name: Update systemd service if changed
+        run: |
+          if ! diff -q /mnt/nvme/next-controller/next-controller.service /etc/systemd/system/next-controller.service &> /dev/null; then
+            sudo cp /mnt/nvme/next-controller/next-controller.service /etc/systemd/system/next-controller.service
+          fi
+
+      - name: Restart service
+        run: sudo systemctl daemon-reload && sudo systemctl restart next-controller
