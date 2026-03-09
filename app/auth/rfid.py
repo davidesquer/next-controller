@@ -40,7 +40,7 @@ def _scan_loop():
 
     while _running:
         try:
-            (status, _) = _reader.MFRC522_Request(_reader.PICC_REQIDL)
+            (status, _) = _reader.MFRC522_Request(_reader.PICC_REQALL)
             if status != _reader.MI_OK:
                 time.sleep(0.1)
                 continue
@@ -51,6 +51,7 @@ def _scan_loop():
             uid = 0
             for byte in raw_uid:
                 uid = uid * 256 + byte
+            print(f"Raw UID bytes: {raw_uid} -> {uid}")
         except Exception as e:
             print(f"RFID read error: {e}")
             time.sleep(1)
@@ -101,7 +102,7 @@ def cleanup():
     global _running
     _running = False
     try:
-        import RPi.GPIO as GPIO
+        from RPi import GPIO
         GPIO.cleanup()
         print("GPIO cleaned up.")
     except (ImportError, RuntimeError):
