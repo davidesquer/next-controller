@@ -14,6 +14,7 @@ async def lifespan(app: FastAPI):
     rfid.init(
         on_unlock=deck_manager.on_rfid_unlock,
         on_register=deck_manager.on_rfid_register,
+        on_denied=deck_manager.on_rfid_denied,
     )
     deck_manager.start()
     yield

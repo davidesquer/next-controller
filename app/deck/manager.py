@@ -145,6 +145,25 @@ def on_rfid_register(uid: int):
     update_keys()
 
 
+def on_rfid_denied(uid: int):
+    """Called by RFID module when an unregistered card is scanned."""
+    print(f"RFID denied — card {uid} not registered.")
+    _show_denied_screen()
+    time.sleep(2)
+    update_keys()
+
+
+def _show_denied_screen():
+    d = state.deck
+    if d is None or not d.is_open():
+        return
+    with d:
+        d.set_key_image(0, images.make_text(d, "ACCESS", color="white", bg="red"))
+        d.set_key_image(1, images.make_text(d, "DENIED", color="white", bg="red"))
+        for i in range(2, 6):
+            d.set_key_image(i, images.make_text(d, "", color="white", bg="red"))
+
+
 # ---------------------------------------------------------------------------
 # Lifecycle
 # ---------------------------------------------------------------------------

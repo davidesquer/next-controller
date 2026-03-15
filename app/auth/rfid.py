@@ -9,15 +9,17 @@ _reader = None
 _running = False
 _on_unlock = None  # callback when a valid card is scanned
 _on_register = None  # callback when a new card is registered
+_on_denied = None  # callback when an unregistered card is scanned
 _last_uid = None
 _last_scan_time = 0.0
 
 
-def init(on_unlock=None, on_register=None):
+def init(on_unlock=None, on_register=None, on_denied=None):
     """Initialise the RFID reader and start the scan loop."""
-    global _reader, _on_unlock, _on_register
+    global _reader, _on_unlock, _on_register, _on_denied
     _on_unlock = on_unlock
     _on_register = on_register
+    _on_denied = on_denied
 
     try:
         from mfrc522 import MFRC522
@@ -82,6 +84,8 @@ def _scan_loop():
                 _on_unlock(uid)
         else:
             print(f"Card {uid} not recognised.")
+            if _on_denied:
+                _on_denied(uid)
 
 
 def enter_register_mode():
