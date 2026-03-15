@@ -150,6 +150,7 @@ def on_rfid_denied(uid: int):
     print(f"RFID denied — card {uid} not registered.")
     _show_denied_screen()
     time.sleep(2)
+    state.lock()
     update_keys()
 
 
